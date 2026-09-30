@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DuckDuckGo - Privacy, simplified.</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #222222;
+        }
+        .ddg-orange {
+            color: #de5833;
+        }
+        .ddg-bg-orange {
+            background-color: #de5833;
+        }
+        .ddg-hover-orange:hover {
+            background-color: #c94b29;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <div id="home-view" class="flex-grow flex flex-col items-center justify-center px-4 transition-all duration-300">
+        <!-- Logo -->
+        <div class="mb-8 text-center">
+            <div class="inline-flex items-center text-white shadow-lg mb-4">
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-neutral-800">Gojokes</h1>
+            <p class="text-neutral-500 text-sm mt-1">The search engine that doesn't track you.</p>
+        </div>
+
+        <!-- Search Form (Home) -->
+        <form id="home-search-form" class="w-full max-w-xl relative">
+            <div class="flex items-center bg-white border border-neutral-300 hover:border-neutral-400 focus-within:border-neutral-500 rounded-full shadow-md hover:shadow-lg transition-all px-4 py-3">
+                <i class="fa-solid fa-magnifying-glass text-neutral-400 mr-3 text-lg"></i>
+                <input 
+                    type="text" 
+                    id="home-search-input" 
+                    placeholder="Search the web without being tracked..." 
+                    class="w-full bg-transparent outline-none text-neutral-800 placeholder-neutral-400 text-base"
+                    autocomplete="off"
+                    required
+                >
+                <button type="button" id="home-clear-btn" class="text-neutral-400 hover:text-neutral-600 px-2 hidden">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+                <button type="submit" class="ddg-bg-orange ddg-hover-orange text-white px-5 py-2 rounded-full font-medium ml-2 transition-all shadow">
+                    Search
+                </button>
+            </div>
+        </form>
+
+        <!-- Quick Keywords Suggestion Pills -->
+        <div class="mt-6 flex flex-wrap justify-center gap-2 text-xs text-neutral-500">
+            <span class="text-neutral-400 py-1">Try searching:</span>
+            <button onclick="triggerSearch('bjb')" class="bg-neutral-100 hover:bg-neutral-200 px-3 py-1 rounded-full transition-colors font-medium text-neutral-700">bjb</button>
+            <button onclick="triggerSearch('roblox')" class="bg-neutral-100 hover:bg-neutral-200 px-3 py-1 rounded-full transition-colors font-medium text-neutral-700">roblox</button>
+            <button onclick="triggerSearch('TFHI')" class="bg-neutral-100 hover:bg-neutral-200 px-3 py-1 rounded-full transition-colors font-medium text-neutral-700">TFHI</button>
+        </div>
+    </div>
+
+    <div id="results-view" class="hidden flex-grow flex flex-col">
+        <!-- Top Results Header -->
+        <header class="border-b border-neutral-200 py-3 px-4 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 sticky top-0 bg-white z-10 shadow-sm">
+            <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
+                <div class="flex items-center gap-2 cursor-pointer" onclick="goHome()">
+                    <div class="text-white flex items-center justify-center shadow">
+                        <i class="fa-solid fa-duck text-lg"></i>
+                    </div>
+                    <span class="font-bold text-xl tracking-tight text-neutral-800">Gojokes</span>
+                </div>
+            </div>
+
+            <!-- Header Search Bar -->
+            <form id="results-search-form" class="w-full sm:max-w-xl relative">
+                <div class="flex items-center bg-white border border-neutral-300 hover:border-neutral-400 focus-within:border-neutral-500 rounded-full shadow-sm px-4 py-2">
+                    <i class="fa-solid fa-magnifying-glass text-neutral-400 mr-3 text-sm"></i>
+                    <input 
+                        type="text" 
+                        id="results-search-input" 
+                        placeholder="Search..." 
+                        class="w-full bg-transparent outline-none text-neutral-800 text-sm"
+                        autocomplete="off"
+                        required
+                    >
+                    <button type="submit" class="ddg-bg-orange ddg-hover-orange text-white px-4 py-1.5 rounded-full text-sm font-medium ml-2 transition-all">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </form>
+        </header>
+
+        <!-- Results Main Content Area -->
+        <main class="flex-grow max-w-4xl w-full mx-auto px-4 py-6">
+            <div class="text-xs text-neutral-500 mb-4" id="results-meta">About 1 result</div>
+            
+            <!-- Result Container -->
+            <div id="search-result-card" class="space-y-6">
+                <!-- Dynamically populated 1 result -->
+            </div>
+        </main>
+    </div>
+
+
+
+    <footer class="py-4 text-center text-xs text-neutral-400 border-t border-neutral-100">
+        <p>&copy; 2026 Gojokes, Inc. • Privacy Protected Search Engine</p>
+    </footer>
+
+    <script>
+        // Database of 3 specific keyword mappings
+        const searchDatabase = {
+            "bjb": {
+                title: "Bank BJB Corporate Internet Banking",
+                url: "https://bjbcorp.bankbjb.co.id/corporate",
+                displayUrl: "https://bjbcorp.bankbjb.co.id/corporate",
+                snippet: "Official Corporate Internet Banking service from Bank BJB designed for secure business financial transactions, cash management, multi-user authorization, and corporate account management."
+            },
+            "internet banking corporate bjb": {
+                title: "Bank BJB Corporate Internet Banking",
+                url: "https://bjbcorp.bankbjb.co.id/corporate",
+                displayUrl: "https://bjbcorp.bankbjb.co.id/corporate",
+                snippet: "Official Corporate Internet Banking service from Bank BJB designed for secure business financial transactions, cash management, multi-user authorization, and corporate account management."
+            },
+            "roblox": {
+                title: "Roblox",
+                url: "https://www.roblox.com/",
+                displayUrl: "https://www.roblox.com",
+                snippet: "Roblox is the ultimate virtual universe that lets you create, share experiences with friends, and be anything you can imagine in immersive 3D multiplayer games."
+            },
+            "tfhi": {
+                title: "EFTA00002467 - WikiMedia",
+                url: "https://upload.wikimedia.org/wikipedia/commons/6/66/EFTA00002467_-_Black_Toshiba_laptop_back_with_ventilation_grilles_labels_and_warning_stickers_on_a_white_table_surface.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+                displayUrl: "https://upload.wikimedia.org/wikipedia/commons/6/66/EFTA00002467_-_Black_Toshiba_laptop_back_with_ventilation_grilles_labels_and_warning_stickers_on_a_white_table_surface.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+                snippet: "Step into Teyvat, a vast world teeming with life and elemental energy. Official Genshin Impact website featuring character updates, download links, news, and community events."
+            }
+        };
+
+        // DOM elements
+        const homeView = document.getElementById('home-view');
+        const resultsView = document.getElementById('results-view');
+        const homeSearchForm = document.getElementById('home-search-form');
+        const homeSearchInput = document.getElementById('home-search-input');
+        const resultsSearchForm = document.getElementById('results-search-form');
+        const resultsSearchInput = document.getElementById('results-search-input');
+        const searchResultCard = document.getElementById('search-result-card');
+        const resultsMeta = document.getElementById('results-meta');
+        const redirectBanner = document.getElementById('redirect-banner');
+        const redirectLink = document.getElementById('redirect-link');
+
+        // Form Submission Handlers
+        homeSearchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const query = homeSearchInput.value.trim();
+            handleSearch(query);
+        });
+
+        resultsSearchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const query = resultsSearchInput.value.trim();
+            handleSearch(query);
+        });
+
+        function triggerSearch(keyword) {
+            if (keyword.toLowerCase() === 'tfhi') {
+                homeSearchInput.value = keyword;
+                showRedirectBanner();
+                return;
+            }
+            homeSearchInput.value = keyword;
+            handleSearch(keyword);
+        }
+
+        function showRedirectBanner() {
+            redirectBanner.classList.remove('hidden');
+            redirectBanner.classList.add('flex');
+            // Auto redirect after 1.2 seconds for smooth experience
+            setTimeout(() => {
+                redirectBanner.classList.remove('flex');
+                redirectBanner.classList.add('hidden');
+            }, 1200);
+        }
+
+        function handleSearch(query) {
+            if (!query) return;
+            const normalizedQuery = query.toLowerCase();
+
+            // Special check for TFHI keyword -> langsung masuk ke websitenya
+            if (normalizedQuery === 'tfhi' || normalizedQuery === 'genshin' || normalizedQuery === 'genshin impact') {
+                resultsSearchInput.value = query;
+                renderResult({
+                    title: "EFTA00002467",
+                    url: "https://upload.wikimedia.org/wikipedia/commons/6/66/EFTA00002467_-_Black_Toshiba_laptop_back_with_ventilation_grilles_labels_and_warning_stickers_on_a_white_table_surface.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+                    displayUrl: "https://upload.wikimedia.org/wikipedia/commons/6/66/EFTA00002467_-_Black_Toshiba_laptop_back_with_ventilation_grilles_labels_and_warning_stickers_on_a_white_table_surface.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+                    snippet: ""
+                });
+                switchToResultsView();
+                return;
+            }
+
+            // Look up in database
+            const result = searchDatabase[normalizedQuery];
+
+            if (result) {
+                renderResult(result);
+            } else {
+                renderNoResult(query);
+            }
+
+            resultsSearchInput.value = query;
+            switchToResultsView();
+        }
+
+        function renderResult(item) {
+            resultsMeta.textContent = "About 1 result";
+            searchResultCard.innerHTML = `
+                <div class="bg-white p-5 rounded-xl border border-neutral-200 shadow-sm hover:shadow transition-all space-y-2">
+                    <div class="flex items-center gap-2 text-xs text-neutral-500">
+                        <div class="w-5 h-5 rounded-full bg-neutral-100 flex items-center justify-center font-bold text-[10px] text-neutral-600">
+                            <i class="fa-solid fa-globe"></i>
+                        </div>
+                        <span class="truncate">${item.displayUrl}</span>
+                    </div>
+                    <h2 class="text-xl font-medium text-blue-600 hover:underline cursor-pointer">
+                        <a href="${item.url}" target="_blank">${item.title}</a>
+                    </h2>
+                    <p class="text-neutral-600 text-sm leading-relaxed">${item.snippet}</p>
+                </div>
+            `;
+        }
+
+        function renderNoResult(query) {
+            resultsMeta.textContent = "About 0 results";
+            searchResultCard.innerHTML = `
+                <div class="bg-neutral-50 p-6 rounded-xl border border-neutral-200 text-center space-y-3">
+                    <i class="fa-solid fa-circle-exclamation text-3xl text-amber-500"></i>
+                    <h3 class="text-lg font-semibold text-neutral-800">No exact results found for "${query}"</h3>
+                    <p class="text-neutral-500 text-sm max-w-md mx-auto">This fake DuckDuckGo demo supports specific keywords. Try searching for <code class="bg-white px-2 py-0.5 rounded border border-neutral-300 text-neutral-800 font-medium">bjb</code>, <code class="bg-white px-2 py-0.5 rounded border border-neutral-300 text-neutral-800 font-medium">roblox</code>, or <code class="bg-white px-2 py-0.5 rounded border border-neutral-300 text-neutral-800 font-medium">TFHI</code>.</p>
+                </div>
+            `;
+        }
+
+        function switchToResultsView() {
+            homeView.classList.add('hidden');
+            resultsView.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goHome() {
+            resultsView.classList.add('hidden');
+            homeView.classList.remove('hidden');
+            homeSearchInput.value = '';
+            homeSearchInput.focus();
+        }
+
+        // Focus search on load
+        window.onload = function() {
+            homeSearchInput.focus();
+        };
+    </script>
+</body>
+</html>
